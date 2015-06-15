@@ -7,6 +7,7 @@ namespace ZF\MvcAuth\Factory;
 
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\DelegatorFactoryInterface;
+use Zend\ServiceManager\Exception\ExceptionInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use ZF\MvcAuth\Authentication\DefaultAuthenticationListener;
 use ZF\MvcAuth\Authentication\HttpAdapter;
@@ -36,8 +37,13 @@ class AuthenticationAdapterDelegatorFactory implements DelegatorFactoryInterface
             return $listener;
         }
 
-        foreach ($config['zf-mvc-auth']['authentication']['adapters'] as $type => $data) {
-            $this->attachAdapterOfType($type, $data, $container, $listener);
+        foreach ($config['zf-mvc-auth']['authentication']['adapters'] as $name => $spec) {
+            try {
+                $adapter = $services->get('zf-mvc-auth-authentication-adapters-' . $name);
+            } catch (ExceptionInterface $e) {
+                continue;
+            }
+            $listener->attach($adapter);
         }
 
         return $listener;
@@ -57,44 +63,5 @@ class AuthenticationAdapterDelegatorFactory implements DelegatorFactoryInterface
     public function createDelegatorWithName(ServiceLocatorInterface $container, $name, $requestedName, $callback)
     {
         return $this($container, $requestedName, $callback);
-    }
-
-    /**
-     * Attach an adaper to the listener as described by $type and $data.
-     *
-     * @param string $type
-     * @param array $adapterConfig
-     * @param ContainerInterface $container
-     * @param DefaultAuthenticationListener $listener
-     */
-    private function attachAdapterOfType(
-        $type,
-        array $adapterConfig,
-        ContainerInterface $container,
-        DefaultAuthenticationListener $listener
-    ) {
-        if (! isset($adapterConfig['adapter'])
-            || ! is_string($adapterConfig['adapter'])
-        ) {
-            return;
-        }
-
-        switch ($adapterConfig['adapter']) {
-            case HttpAdapter::class:
-                $adapter = AuthenticationHttpAdapterFactory::factory($type, $adapterConfig, $container);
-                break;
-            case OAuth2Adapter::class:
-                $adapter = AuthenticationOAuth2AdapterFactory::factory($type, $adapterConfig, $container);
-                break;
-            default:
-                $adapter = false;
-                break;
-        }
-
-        if (! $adapter) {
-            return;
-        }
-
-        $listener->attach($adapter);
     }
 }
