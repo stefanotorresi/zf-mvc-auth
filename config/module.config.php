@@ -47,6 +47,9 @@ return [
 
         ],
         // @codingStandardsIgnoreEnd
+        'abstract_factories' => [
+            Factory\AdapterAbstractFactory::class,
+        ],
     ],
     'zf-mvc-auth'        => [
         'authentication' => [
