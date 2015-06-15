@@ -25,15 +25,15 @@ class AuthenticationCompositeAdapterFactoryTest extends TestCase
 
     public function invalidConfiguration()
     {
-        return array(
-            'empty'  => array(array()),
-            'null'   => array(array('adapters' => null)),
-            'bool'   => array(array('adapters' => true)),
-            'int'    => array(array('adapters' => 1)),
-            'float'  => array(array('adapters' => 1.1)),
-            'string' => array(array('adapters' => 'options')),
-            'object' => array(array('adapters' => (object) array('storage'))),
-        );
+        return [
+            'empty'  => [[]],
+            'null'   => [['adapters' => null]],
+            'bool'   => [['adapters' => true]],
+            'int'    => [['adapters' => 1]],
+            'float'  => [['adapters' => 1.1]],
+            'string' => [['adapters' => 'options']],
+            'object' => [['adapters' => (object) ['storage']]],
+        ];
     }
 
     /**
@@ -41,27 +41,30 @@ class AuthenticationCompositeAdapterFactoryTest extends TestCase
      */
     public function testRaisesExceptionForMissingOrInvalidStorage(array $config)
     {
-        $this->setExpectedException('Zend\ServiceManager\Exception\ServiceNotCreatedException', 'No adapters configured');
+        $this->setExpectedException(
+            'Zend\ServiceManager\Exception\ServiceNotCreatedException',
+            'No adapters configured'
+        );
         AuthenticationCompositeAdapterFactory::factory('foo', $config, $this->serviceLocator);
     }
 
     public function testCreatesInstanceFromValidConfiguration()
     {
-        $config = array(
-            'adapters' => array('foo', 'bar'),
-        );
+        $config = [
+            'adapters' => ['foo', 'bar'],
+        ];
 
         $fooAdapter = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
         $barAdapter = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
         $fooAdapter
             ->expects($this->any())
             ->method('provides')
-            ->will($this->returnValue(array('foo')))
+            ->will($this->returnValue(['foo']))
         ;
         $barAdapter
             ->expects($this->any())
             ->method('provides')
-            ->will($this->returnValue(array('bar')))
+            ->will($this->returnValue(['bar']))
         ;
 
         $this->serviceLocator->expects($this->any())
@@ -70,17 +73,17 @@ class AuthenticationCompositeAdapterFactoryTest extends TestCase
                 'zf-mvc-auth-authentication-adapters-foo',
                 'zf-mvc-auth-authentication-adapters-bar'
             ))
-            ->will($this->returnCallback(function($name) use ($fooAdapter, $barAdapter) {
-                switch($name) {
-                    case 'zf-mvc-auth-authentication-adapters-foo' :
+            ->will($this->returnCallback(function ($name) use ($fooAdapter, $barAdapter) {
+                switch ($name) {
+                    case 'zf-mvc-auth-authentication-adapters-foo':
                         return $fooAdapter;
-                    case 'zf-mvc-auth-authentication-adapters-bar' :
+                    case 'zf-mvc-auth-authentication-adapters-bar':
                         return $barAdapter;
                 }
             }));
 
         $adapter = AuthenticationCompositeAdapterFactory::factory('foobar', $config, $this->serviceLocator);
         $this->assertInstanceOf('ZF\MvcAuth\Authentication\CompositeAdapter', $adapter);
-        $this->assertEquals(array('foo', 'bar', 'foobar'), $adapter->provides());
+        $this->assertEquals(['foo', 'bar', 'foobar'], $adapter->provides());
     }
 }

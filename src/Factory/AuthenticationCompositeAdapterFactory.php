@@ -35,7 +35,7 @@ final class AuthenticationCompositeAdapterFactory
             throw new ServiceNotCreatedException('No adapters configured for CompositeAdapters');
         }
 
-        $adapters = array();
+        $adapters = [];
 
         foreach ($config['adapters'] as $name) {
             $adapters[] = $services->get('zf-mvc-auth-authentication-adapters-' . $name);

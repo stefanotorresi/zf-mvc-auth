@@ -27,52 +27,55 @@ class AdapterAbstractFactoryTest extends TestCase
         $this->factory        = new AdapterAbstractFactory();
         $this->serviceManager = new ServiceManager();
 
-        $config = array(
-            'zf-oauth2' => array(
-                'grant_types' => array(
+        $config = [
+            'zf-oauth2' => [
+                'grant_types' => [
                     'client_credentials' => true,
                     'authorization_code' => true,
                     'password'           => true,
                     'refresh_token'      => true,
                     'jwt'                => true,
-                ),
+                ],
                 'api_problem_error_response' => true,
-            ),
-            'zf-mvc-auth' => array(
-                'authentication' => array(
-                    'adapters' => array(
-                        'foo' => array(
+            ],
+            'zf-mvc-auth' => [
+                'authentication' => [
+                    'adapters' => [
+                        'foo' => [
                             'adapter' => 'ZF\MvcAuth\Authentication\HttpAdapter',
-                            'options' => array(
-                                'accept_schemes' => array('basic'),
+                            'options' => [
+                                'accept_schemes' => ['basic'],
                                 'realm' => 'api',
                                 'htpasswd' => __DIR__ . '/../TestAsset/htpasswd',
-                            ),
-                        ),
-                        'bar' => array(
+                            ],
+                        ],
+                        'bar' => [
                             'adapter' => 'ZF\MvcAuth\Authentication\OAuth2Adapter',
-                            'storage' => array(
+                            'storage' => [
                                 'adapter' => 'pdo',
                                 'dsn' => 'sqlite::memory:',
-                            ),
-                        ),
-                        'baz' => array(
+                            ],
+                        ],
+                        'baz' => [
                             'adapter' => 'CUSTOM',
-                        ),
-                        'bat' => array(
+                        ],
+                        'bat' => [
                             // intentionally empty
-                        ),
-                        'batman' => array(
+                        ],
+                        'batman' => [
                             'adapter' => 'ZF\MvcAuth\Authentication\CompositeAdapter',
-                            'adapters' => array('foo', 'bar'),
-                        ),
-                    ),
-                ),
-            ),
-        );
+                            'adapters' => ['foo', 'bar'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
         $this->serviceManager->setService('config', $config);
-        $this->serviceManager->setService('authentication', $this->getMock('Zend\Authentication\AuthenticationService'));
+        $this->serviceManager->setService(
+            'authentication',
+            $this->getMock('Zend\Authentication\AuthenticationService')
+        );
         $this->serviceManager->setService('CUSTOM', $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface'));
         $this->serviceManager->addAbstractFactory($this->factory);
     }
