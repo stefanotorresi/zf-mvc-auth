@@ -7,7 +7,6 @@ namespace ZF\MvcAuth\Factory;
 
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\DelegatorFactoryInterface;
-use Zend\ServiceManager\Exception\ExceptionInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use ZF\MvcAuth\Authentication\DefaultAuthenticationListener;
 use ZF\MvcAuth\Authentication\HttpAdapter;
@@ -38,12 +37,11 @@ class AuthenticationAdapterDelegatorFactory implements DelegatorFactoryInterface
         }
 
         foreach ($config['zf-mvc-auth']['authentication']['adapters'] as $name => $spec) {
-            try {
-                $adapter = $services->get('zf-mvc-auth-authentication-adapters-' . $name);
-            } catch (ExceptionInterface $e) {
+            $adapterName = 'zf-mvc-auth-authentication-adapters-' . $name;
+            if (! $container->has($adapterName)) {
                 continue;
             }
-            $listener->attach($adapter);
+            $listener->attach($container->get($adapterName));
         }
 
         return $listener;

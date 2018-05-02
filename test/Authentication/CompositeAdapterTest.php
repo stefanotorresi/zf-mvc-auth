@@ -6,10 +6,14 @@
 
 namespace ZFTest\MvcAuth\Authentication;
 
-use PHPUnit_Framework_TestCase as TestCase;
+use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
+use stdClass;
 use Zend\Http\Request;
 use Zend\Http\Response;
+use ZF\MvcAuth\Authentication\AdapterInterface;
 use ZF\MvcAuth\Authentication\CompositeAdapter;
+use ZF\MvcAuth\MvcAuthEvent;
 
 class CompositeAdapterTest extends TestCase
 {
@@ -25,7 +29,7 @@ class CompositeAdapterTest extends TestCase
 
     public function testCanAddAdapter()
     {
-        $adapterMock = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock = $this->createMock(AdapterInterface::class);
         $mockProvides = ['foo', 'bar'];
         $adapterMock
             ->expects($this->any())
@@ -41,7 +45,7 @@ class CompositeAdapterTest extends TestCase
 
     public function testAddAdapterIsIdemPotent()
     {
-        $adapterMock = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock = $this->createMock(AdapterInterface::class);
         $mockProvides = ['foo', 'bar'];
         $adapterMock
             ->expects($this->any())
@@ -61,8 +65,8 @@ class CompositeAdapterTest extends TestCase
 
     public function testCanAddMultipleAdapters()
     {
-        $adapterMock1 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
-        $adapterMock2 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock1 = $this->createMock(AdapterInterface::class);
+        $adapterMock2 = $this->createMock(AdapterInterface::class);
         $mock1Provides = ['foo', 'bar'];
         $mock2Provides = ['bar', 'baz'];
         $adapterMock1
@@ -87,8 +91,8 @@ class CompositeAdapterTest extends TestCase
 
     public function testCanAddAdaptersViaConstructor()
     {
-        $adapterMock1 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
-        $adapterMock2 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock1 = $this->createMock(AdapterInterface::class);
+        $adapterMock2 = $this->createMock(AdapterInterface::class);
         $mock1Provides = ['foo', 'bar'];
         $mock2Provides = ['bar', 'baz'];
         $adapterMock1
@@ -112,7 +116,7 @@ class CompositeAdapterTest extends TestCase
 
     public function testCanRemoveAdapter()
     {
-        $adapterMock = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock = $this->createMock(AdapterInterface::class);
         $mockProvides = ['foo', 'bar'];
         $adapterMock
             ->expects($this->any())
@@ -127,8 +131,8 @@ class CompositeAdapterTest extends TestCase
 
     public function testCanRemoveAdapterByType()
     {
-        $adapterMock1 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
-        $adapterMock2 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock1 = $this->createMock(AdapterInterface::class);
+        $adapterMock2 = $this->createMock(AdapterInterface::class);
         $mock1Provides = ['foo', 'bar'];
         $mock2Provides = ['bar', 'baz'];
         $adapterMock1
@@ -157,25 +161,24 @@ class CompositeAdapterTest extends TestCase
      */
     public function testRemoveAdapterWithInvalidValuesThrows($invalidValue)
     {
-        $this->setExpectedException('InvalidArgumentException');
-
+        $this->expectException(InvalidArgumentException::class);
         $this->adapter->removeAdapter($invalidValue);
     }
 
     public function invalidRemoveValues()
     {
         return [
-            [ 0 ],
-            [ new \stdClass() ],
-            [ true ],
-            [ [] ],
+            [0],
+            [new stdClass()],
+            [true],
+            [[]],
         ];
     }
 
     public function testPreviouslyAddedAdaptersCanHandleTypesSupersededByRemovedOnes()
     {
-        $adapterMock1 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
-        $adapterMock2 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock1 = $this->createMock(AdapterInterface::class);
+        $adapterMock2 = $this->createMock(AdapterInterface::class);
         $mock1Provides = ['foo', 'bar'];
         $mock2Provides = ['bar', 'baz'];
         $adapterMock1
@@ -200,7 +203,7 @@ class CompositeAdapterTest extends TestCase
     public function testCanGetTypeFromRequest()
     {
         $request      = new Request();
-        $adapterMock  = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock = $this->createMock(AdapterInterface::class);
         $mockProvides = ['foo', 'bar'];
         $adapterMock
             ->expects($this->any())
@@ -222,7 +225,7 @@ class CompositeAdapterTest extends TestCase
     public function testGetTypeFromRequestCanReturnFalse()
     {
         $request      = new Request();
-        $adapterMock  = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock = $this->createMock(AdapterInterface::class);
         $mockProvides = ['foo', 'bar'];
         $adapterMock
             ->expects($this->any())
@@ -245,9 +248,9 @@ class CompositeAdapterTest extends TestCase
     {
         $request      = new Request();
         $response     = new Response();
-        $event        = $this->getMockBuilder('\ZF\MvcAuth\MvcAuthEvent')->disableOriginalConstructor()->getMock();
-        $adapterMock1 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
-        $adapterMock2 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $event        = $this->getMockBuilder(MvcAuthEvent::class)->disableOriginalConstructor()->getMock();
+        $adapterMock1 = $this->createMock(AdapterInterface::class);
+        $adapterMock2 = $this->createMock(AdapterInterface::class);
         $mock1Provides = ['foo', 'bar'];
         $mock2Provides = ['bar', 'baz'];
         $adapterMock1
@@ -293,8 +296,8 @@ class CompositeAdapterTest extends TestCase
     {
         $request      = new Request();
         $response     = new Response();
-        $event        = $this->getMockBuilder('\ZF\MvcAuth\MvcAuthEvent')->disableOriginalConstructor()->getMock();
-        $adapterMock  = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $event        = $this->getMockBuilder(MvcAuthEvent::class)->disableOriginalConstructor()->getMock();
+        $adapterMock = $this->createMock(AdapterInterface::class);
         $mockProvides = ['foo', 'bar'];
         $adapterMock
             ->expects($this->any())
@@ -317,8 +320,8 @@ class CompositeAdapterTest extends TestCase
     {
         $request      = new Request();
         $response     = new Response();
-        $adapterMock1 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
-        $adapterMock2 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock1 = $this->createMock(AdapterInterface::class);
+        $adapterMock2 = $this->createMock(AdapterInterface::class);
         $mock1Provides = ['foo', 'bar'];
         $mock2Provides = ['bar', 'baz'];
         $adapterMock1
@@ -351,8 +354,8 @@ class CompositeAdapterTest extends TestCase
     {
         $request      = new Request();
         $response     = new Response();
-        $adapterMock1 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
-        $adapterMock2 = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock1 = $this->createMock(AdapterInterface::class);
+        $adapterMock2 = $this->createMock(AdapterInterface::class);
         $mock1Provides = ['foo', 'bar'];
         $mock2Provides = ['bar', 'baz'];
         $adapterMock1
@@ -383,8 +386,7 @@ class CompositeAdapterTest extends TestCase
 
     public function testCanBeInitializedWithName()
     {
-
-        $adapterMock = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $adapterMock = $this->createMock(AdapterInterface::class);
         $mockProvides = ['foo', 'bar'];
         $adapterMock
             ->expects($this->any())

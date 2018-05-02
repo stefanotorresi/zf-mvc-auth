@@ -6,9 +6,12 @@
 
 namespace ZFTest\MvcAuth\Factory;
 
-use PHPUnit_Framework_MockObject_MockObject as MockObject;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Zend\ServiceManager\Exception\ServiceNotCreatedException;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use ZF\MvcAuth\Authentication\AdapterInterface;
+use ZF\MvcAuth\Authentication\CompositeAdapter;
 use ZF\MvcAuth\Factory\AuthenticationCompositeAdapterFactory;
 
 class AuthenticationCompositeAdapterFactoryTest extends TestCase
@@ -20,7 +23,7 @@ class AuthenticationCompositeAdapterFactoryTest extends TestCase
 
     public function setUp()
     {
-        $this->serviceLocator = $this->getMock('Zend\ServiceManager\ServiceLocatorInterface');
+        $this->serviceLocator = $this->createMock(ServiceLocatorInterface::class);
     }
 
     public function invalidConfiguration()
@@ -41,10 +44,8 @@ class AuthenticationCompositeAdapterFactoryTest extends TestCase
      */
     public function testRaisesExceptionForMissingOrInvalidStorage(array $config)
     {
-        $this->setExpectedException(
-            'Zend\ServiceManager\Exception\ServiceNotCreatedException',
-            'No adapters configured'
-        );
+        $this->expectException(ServiceNotCreatedException::class);
+        $this->expectExceptionMessage('No adapters configured');
         AuthenticationCompositeAdapterFactory::factory('foo', $config, $this->serviceLocator);
     }
 
@@ -54,8 +55,8 @@ class AuthenticationCompositeAdapterFactoryTest extends TestCase
             'adapters' => ['foo', 'bar'],
         ];
 
-        $fooAdapter = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
-        $barAdapter = $this->getMock('ZF\MvcAuth\Authentication\AdapterInterface');
+        $fooAdapter = $this->createMock(AdapterInterface::class);
+        $barAdapter = $this->createMock(AdapterInterface::class);
         $fooAdapter
             ->expects($this->any())
             ->method('provides')
@@ -83,7 +84,7 @@ class AuthenticationCompositeAdapterFactoryTest extends TestCase
             }));
 
         $adapter = AuthenticationCompositeAdapterFactory::factory('foobar', $config, $this->serviceLocator);
-        $this->assertInstanceOf('ZF\MvcAuth\Authentication\CompositeAdapter', $adapter);
+        $this->assertInstanceOf(CompositeAdapter::class, $adapter);
         $this->assertEquals(['foo', 'bar', 'foobar'], $adapter->provides());
     }
 }

@@ -9,7 +9,7 @@ namespace ZFTest\MvcAuth\Factory;
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\ServiceManager\ServiceManager;
 use ZF\MvcAuth\Authentication\DefaultAuthenticationListener;
-use ZF\MvcAuth\Factory\AdapterAbstractFactory;
+use ZF\MvcAuth\Factory\AuthenticationAdapterAbstractFactory;
 use ZF\MvcAuth\Factory\AuthenticationAdapterDelegatorFactory;
 
 class AuthenticationAdapterDelegatorFactoryTest extends TestCase
@@ -103,7 +103,7 @@ class AuthenticationAdapterDelegatorFactoryTest extends TestCase
             'authentication',
             $this->getMockBuilder('Zend\Authentication\AuthenticationService')->getMock()
         );
-        $this->services->addAbstractFactory(new AdapterAbstractFactory());
+        $this->services->addAbstractFactory(new AuthenticationAdapterAbstractFactory());
 
         $factory = $this->factory;
 
